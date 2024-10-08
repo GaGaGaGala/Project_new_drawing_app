@@ -48,20 +48,24 @@ class DrawingApp:
         self.brush_size_scale = tk.Scale(control_frame, from_=1, to=10, orient=tk.HORIZONTAL)
         self.brush_size_scale.pack(side=tk.LEFT)  # размер масштаб кисти
 
+        """Добавился ластик"""
+        self.eraser_get_button = tk.Button(control_frame, text="Ластик", command=self.eraser_get)
+        self.eraser_get_button.pack(side=tk.LEFT)
+
+        """Вернуться к рисованию"""
+        self.brush_button = tk.Button(control_frame, text="Кисть", command=self.brush)
+        self.brush_button.pack(side=tk.LEFT)
+
     def brushs_size(self):
         """
-        Метод, отвечающий за выбор размера кисти/ластика из списка, а так же за список этих размеров
+        Метод, отвечающий за выбор размера кисти из списка, а так же за список этих размеров
         :return: None
         """
         sizes = [1, 2, 5, 10]
         self.brush_size = tk.IntVar(self.root)
-        self.brush_size.set(sizes[10])
-        self.list_size_brush_button = tk.OptionMenu(
-            self.control_frame,
-            self.brush_size,
-            *sizes,
-            command=self.change_size_brush
-        )
+        self.brush_size.set(sizes[0])
+        self.list_size_brush_button = tk.OptionMenu(self.control_frame, self.brush_size, *sizes,
+                                                    command=self.change_size_brush)
         self.list_size_brush_button.pack(side=tk.LEFT)
 
     def change_size_brush(self, brush_size):
@@ -71,6 +75,18 @@ class DrawingApp:
         :return: Числовое значение размера кисти
         """
         return self.brush_size.get()
+
+    def brush(self):
+        """
+        Метод выбора инструмента - "Кисть" возвращает к рисованию и выбору цвета.
+        """
+        self.pen_color = 'black'
+        # self.choose_color()
+        self.canvas.bind('<B1-Motion>', self.paint)
+
+    def eraser_get(self):
+        self.pen_color = 'white'
+        self.canvas.bind('<ButtonRelease-1>', self.reset)
 
     def paint(self, event):
         """Функция вызывается при движении мыши с нажатой левой кнопкой по холсту. Она рисует линии на холсте Tkinter
@@ -105,6 +121,7 @@ class DrawingApp:
         """Открывает стандартное диалоговое окно выбора цвета и устанавливает выбранный цвет как текущий для кисти.
         """
         self.pen_color = colorchooser.askcolor(color=self.pen_color)[1]
+        return self.pen_color
 
     def save_image(self):
         """Позволяет пользователю сохранить изображение, используя стандартное диалоговое окно для сохранения файла.
