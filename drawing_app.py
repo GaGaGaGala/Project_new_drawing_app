@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import colorchooser, filedialog, messagebox
+from tkinter import colorchooser, filedialog, messagebox, ttk
 from PIL import Image, ImageDraw
 
 """
@@ -28,8 +28,11 @@ class DrawingApp:
         self.last_x, self.last_y = None, None
         self.pen_color = 'black'
 
-        self.canvas.bind('<B1-Motion>', self.paint)  # холст связать движение красить
-        self.canvas.bind('<ButtonRelease-1>', self.reset)  # холст связать освободить кнопку сброс
+        self.canvas.bind('<B1-Motion>', self.paint)  # холст связать с методом красить
+        self.canvas.bind('<ButtonRelease-1>', self.reset)  # холст связать  со сбросом кнопки
+
+        """Привязываем обработчик события <Button-3> к холсту, чтобы выбрать цвет"""
+        self.canvas.bind('<Button-3>', self.pick_color)
 
     def setup_ui(self):  # настройка
         """Этот метод отвечает за создание и расположение виджетов управления"""
@@ -48,6 +51,12 @@ class DrawingApp:
         self.brush_size_scale = tk.Scale(control_frame, from_=1, to=10, orient=tk.HORIZONTAL)
         self.brush_size_scale.pack(side=tk.LEFT)  # размер масштаб кисти
 
+
+        """Выпадающее меню для выбора размера кисти"""
+        sizes = ['1', '2', '5', '10']
+        combo = ttk.OptionMenu(control_frame, self.brush_size_scale, sizes[0], *sizes)
+        combo.pack(side=tk.LEFT)
+
         """Добавился ластик"""
         self.eraser_get_button = tk.Button(control_frame, text="Ластик", command=self.eraser_get)
         self.eraser_get_button.pack(side=tk.LEFT)
@@ -61,20 +70,7 @@ class DrawingApp:
         Метод, отвечающий за выбор размера кисти из списка, а так же за список этих размеров
         :return: None
         """
-        sizes = [1, 2, 5, 10]
-        self.brush_size = tk.IntVar(self.root)
-        self.brush_size.set(sizes[0])
-        self.list_size_brush_button = tk.OptionMenu(self.control_frame, self.brush_size, *sizes,
-                                                    command=self.change_size_brush)
-        self.list_size_brush_button.pack(side=tk.LEFT)
-
-    def change_size_brush(self, brush_size):
-        """
-        Метод отвечающий за применение выбранного размера к текущему инструменту
-        :param brush_size: размер кисти из списка
-        :return: Числовое значение размера кисти
-        """
-        return self.brush_size.get()
+        self.brush_size_scale.pack(side=tk.LEFT)
 
     def brush(self):
         """
@@ -85,8 +81,10 @@ class DrawingApp:
         self.canvas.bind('<B1-Motion>', self.paint)
 
     def eraser_get(self):
+        """Метод для работы ластика"""
         self.pen_color = 'white'
         self.canvas.bind('<ButtonRelease-1>', self.reset)
+
 
     def paint(self, event):
         """Функция вызывается при движении мыши с нажатой левой кнопкой по холсту. Она рисует линии на холсте Tkinter
@@ -99,10 +97,18 @@ class DrawingApp:
                                     width=self.brush_size_scale.get(), fill=self.pen_color,
                                     capstyle=tk.ROUND, smooth=tk.TRUE)
             self.draw.line([self.last_x, self.last_y, event.x, event.y], fill=self.pen_color,
-                           width=self.brush_size_scale.get())
+                            width=self.brush_size_scale.get())
 
         self.last_x = event.x
         self.last_y = event.y
+
+    def pick_color(self, event):
+        """ Функция "Пипетка", которая обновляет цвет пера на основе цвета пикселя изображения в координатах события.
+        Args:
+            self: Экземпляр класса DrawingApp.
+            event: Событие, содержащее координаты пикселя в холсте."""
+        self.pen_color = '#%02x%02x%02x' % self.image.getpixel((event.x, event.y))
+        return self.pen_color
 
     def reset(self, event):
         """Сбрасывает последние координаты кисти. Это необходимо для корректного начала новой линии после того,
