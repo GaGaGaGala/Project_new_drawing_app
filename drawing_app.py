@@ -34,6 +34,12 @@ class DrawingApp:
         """Привязываем обработчик события <Button-3> к холсту, чтобы выбрать цвет"""
         self.canvas.bind('<Button-3>', self.pick_color)
 
+        """Добавляем гарячую клавишу для сохранения изображения."""
+        self.root.bind('<Control-s>', self.save_image)
+
+        """Гарячая клавиша для выбора цвета."""
+        self.root.bind('<Control-c>', self.choose_color)
+
     def setup_ui(self):  # настройка
         """Этот метод отвечает за создание и расположение виджетов управления"""
         control_frame = tk.Frame(self.root)  # рамка
@@ -50,6 +56,10 @@ class DrawingApp:
 
         self.brush_size_scale = tk.Scale(control_frame, from_=1, to=10, orient=tk.HORIZONTAL)
         self.brush_size_scale.pack(side=tk.LEFT)  # размер масштаб кисти
+
+        """Добавляем метку для размера кисти."""
+        label = ttk.Label(control_frame, text='Размер кисти:')
+        label.pack(side=tk.LEFT)
 
 
         """Выпадающее меню для выбора размера кисти"""
@@ -123,13 +133,13 @@ class DrawingApp:
         self.image = Image.new("RGB", (600, 400), "white")
         self.draw = ImageDraw.Draw(self.image)
 
-    def choose_color(self):
+    def choose_color(self, event=None):
         """Открывает стандартное диалоговое окно выбора цвета и устанавливает выбранный цвет как текущий для кисти.
         """
         self.pen_color = colorchooser.askcolor(color=self.pen_color)[1]
         return self.pen_color
 
-    def save_image(self):
+    def save_image(self, event=None):
         """Позволяет пользователю сохранить изображение, используя стандартное диалоговое окно для сохранения файла.
          Поддерживает только формат PNG. В случае успешного сохранения выводится сообщение об успешном сохранении.
         """
