@@ -40,6 +40,10 @@ class DrawingApp:
         """Гарячая клавиша для выбора цвета."""
         self.root.bind('<Control-c>', self.choose_color)
 
+        """Маленький холст-окно для предварительного просмотра текущего цвета"""
+        self.preview_color = tk.Canvas(root, width=30, height=30, bg=self.pen_color)
+        self.preview_color.pack(side=tk.LEFT)
+
     def setup_ui(self):  # настройка
         """Этот метод отвечает за создание и расположение виджетов управления"""
         control_frame = tk.Frame(self.root)  # рамка
@@ -137,7 +141,7 @@ class DrawingApp:
         """Открывает стандартное диалоговое окно выбора цвета и устанавливает выбранный цвет как текущий для кисти.
         """
         self.pen_color = colorchooser.askcolor(color=self.pen_color)[1]
-        return self.pen_color
+        self.preview_color.configure(bg=self.pen_color)
 
     def save_image(self, event=None):
         """Позволяет пользователю сохранить изображение, используя стандартное диалоговое окно для сохранения файла.
