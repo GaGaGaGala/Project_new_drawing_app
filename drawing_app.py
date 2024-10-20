@@ -61,7 +61,11 @@ class DrawingApp:
         self.brush_size_scale = tk.Scale(control_frame, from_=1, to=10, orient=tk.HORIZONTAL)
         self.brush_size_scale.pack(side=tk.LEFT)  # размер масштаб кисти
 
-        """Добавляем метку для размера кисти."""
+        """Добавлена кнопка для изменения размера холста"""
+        change_canvas_button = tk.Button(control_frame, text="Изменить размер холста", command=self.change_size_canvas)
+        change_canvas_button.pack(side=tk.LEFT)
+
+        """Добавлена метка для размера кисти."""
         label = ttk.Label(control_frame, text='Размер кисти:')
         label.pack(side=tk.LEFT)
 
@@ -131,7 +135,7 @@ class DrawingApp:
         self.last_x, self.last_y = None, None
 
     def clear_canvas(self):
-        """Очищает холст, удаляя все нарисованное, и пересоздает объекты Image и ImageDrawдля нового изображения.
+        """Очищает холст, удаляя все нарисованное, и пересоздает объекты Image и ImageDraw для нового изображения.
         """
         self.canvas.delete("all")
         self.image = Image.new("RGB", (600, 400), "white")
@@ -153,6 +157,14 @@ class DrawingApp:
                 file_path += '.png'
             self.image.save(file_path)
             messagebox.showinfo("Информация", "Изображение успешно сохранено!")
+
+    def change_size_canvas(self):
+        """Функция для изменения размера холста."""
+        width = tk.simpledialog.askinteger(title="Изменить размер холста", prompt="Ширина холста:")
+        height = tk.simpledialog.askinteger(title="Изменить размер холста", prompt="Высота холста:")
+        self.canvas.config(width=width, height=height)
+        self.image = self.image.resize((width, height))
+        self.draw = ImageDraw.Draw(self.image)
 
 
 def main():
