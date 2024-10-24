@@ -28,6 +28,8 @@ class DrawingApp:
         self.last_x, self.last_y = None, None
         self.pen_color = 'black'
 
+        self.text = None
+
         self.canvas.bind('<B1-Motion>', self.paint)  # холст связать с методом красить
         self.canvas.bind('<ButtonRelease-1>', self.reset)  # холст связать  со сбросом кнопки
 
@@ -41,8 +43,11 @@ class DrawingApp:
         self.root.bind('<Control-c>', self.choose_color)
 
         """Маленький холст-окно для предварительного просмотра текущего цвета"""
-        self.preview_color = tk.Canvas(root, width=30, height=30, bg=self.pen_color)
+        self.preview_color = tk.Canvas(root, width=30, height=30, background=self.pen_color)
         self.preview_color.pack(side=tk.LEFT)
+
+        """ Привязываем обработчик события <Button-1> к холсту, чтобы вставлять текст."""
+        self.canvas.bind('<Button-1>', self.paste_text)
 
     def setup_ui(self):  # настройка
         """Этот метод отвечает за создание и расположение виджетов управления"""
@@ -83,6 +88,13 @@ class DrawingApp:
         self.brush_button = tk.Button(control_frame, text="Кисть", command=self.brush)
         self.brush_button.pack(side=tk.LEFT)
 
+        """Кнопка 'Добавить текст'."""
+        self.text_button = tk.Button(control_frame, text="Ввести текст", command=self.add_text)
+        self.text_button.pack(side=tk.LEFT)
+
+        """Кнопка для изменения цвета холста."""
+        self.change_color_button = tk.Button(control_frame, text="Цвет холста", command=self.change_canvas_color)
+        self.change_color_button.pack(side=tk.LEFT)
     def brushs_size(self):
         """
         Метод, отвечающий за выбор размера кисти из списка, а так же за список этих размеров
@@ -166,6 +178,23 @@ class DrawingApp:
         self.image = self.image.resize((width, height))
         self.draw = ImageDraw.Draw(self.image)
 
+
+    def add_text(self):
+        """Функция выводит диалоговое окно для ввода текста."""
+        text = tk.simpledialog.askstring(title='Ввести текст', prompt="Текст:")
+        self.text = text
+
+    def paste_text(self, event):
+        """ Функция вставляет текст на холст в координатах щелчка левой кнопки мыши."""
+        self.last_x = event.x
+        self.last_y = event.y
+        self.canvas.create_text(self.last_x, self.last_y, text=self.text, fill=self.pen_color)
+        self.text = None
+    def change_canvas_color(self):
+        """Функция для изменения цвета холста."""
+        color = tk.colorchooser.askcolor()
+        new_color = color[1]
+        self.canvas.config(bg=new_color)
 
 def main():
     root = tk.Tk()
